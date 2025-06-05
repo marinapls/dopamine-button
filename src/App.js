@@ -30,6 +30,23 @@ const GlobalStyle = createGlobalStyle`
   .screen-shake {
     animation: ${screenShake} 0.5s ease-in-out;
   }
+
+  ${screenShake}
+  
+  html {
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: #1e1e1e;
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
+  }
 `;
 
 const Container = styled.div`
@@ -66,6 +83,11 @@ const Title = styled.h1`
   color: #fff;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
   pointer-events: none;
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+    margin: 0.5rem 0;
+  }
 `;
 
 const Button = styled(motion.button)`
@@ -89,6 +111,13 @@ const Button = styled(motion.button)`
   transition: all 0.1s ease-in-out;
   transform-style: preserve-3d;
   perspective: 1000px;
+
+  @media (max-width: 768px) {
+    width: 150px;
+    height: 150px;
+    font-size: 1.4rem;
+    padding: 1.5rem 3rem;
+  }
 
   &::before {
     content: '';
@@ -138,6 +167,12 @@ const SoundToggle = styled.button`
   z-index: 3;
   pointer-events: auto;
 
+  @media (max-width: 768px) {
+    top: 10px;
+    right: 10px;
+    font-size: 1.8rem;
+  }
+
   &:hover {
     opacity: 1;
   }
@@ -156,6 +191,52 @@ const MilestoneText = styled(motion.div)`
   z-index: 1000;
 `;
 
+const ToggleButton = styled.button`
+  position: fixed;
+  background: rgba(40, 40, 40, 0.9);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 4;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &:hover {
+    background: rgba(60, 60, 60, 0.9);
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
+const PaletteToggle = styled(ToggleButton)`
+  bottom: ${props => props.show ? '240px' : '20px'};
+  right: ${props => props.show ? '20px' : '50%'};
+  transform: ${props => props.show ? 'none' : 'translateX(50%)'};
+
+  @media (max-width: 768px) {
+    bottom: ${props => props.show ? '200px' : '20px'};
+    right: 50%;
+    transform: translateX(50%);
+  }
+`;
+
+const DealerToggle = styled(ToggleButton)`
+  bottom: 20px;
+  left: ${props => props.show ? '220px' : '20px'};
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
 const ColorPalette = styled.div`
   position: fixed;
   bottom: 20px;
@@ -163,18 +244,30 @@ const ColorPalette = styled.div`
   background: rgba(40, 40, 40, 0.9);
   padding: 10px;
   border-radius: 8px;
-  display: flex;
+  display: ${props => props.show ? 'flex' : 'none'};
   flex-direction: column;
   gap: 8px;
   z-index: 3;
   pointer-events: auto;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+
+  @media (max-width: 768px) {
+    bottom: 70px;
+    right: 50%;
+    transform: translateX(50%);
+    width: 90%;
+    max-width: 300px;
+  }
 `;
 
 const ColorRow = styled.div`
   display: flex;
   gap: 8px;
-  justify-content: flex-end;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    gap: 12px;
+  }
 `;
 
 const ColorButton = styled.button`
@@ -186,14 +279,29 @@ const ColorButton = styled.button`
   background: ${props => props.color};
   transition: transform 0.1s;
 
+  @media (max-width: 768px) {
+    width: 35px;
+    height: 35px;
+  }
+
   &:hover {
     transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 `;
 
 const SizeSlider = styled.input`
   width: 100%;
   margin-top: 5px;
+  height: 20px;
+
+  @media (max-width: 768px) {
+    height: 30px;
+    margin: 10px 0;
+  }
 `;
 
 const SizeLabel = styled.div`
@@ -243,6 +351,13 @@ const CuteStar = styled(motion.div)`
   width: 60px;
   height: 60px;
   pointer-events: auto;
+
+  @media (max-width: 768px) {
+    right: 20px;
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+  }
 `;
 
 const StarMessage = styled(motion.div)`
@@ -307,11 +422,15 @@ const DealerSection = styled.div`
   position: fixed;
   left: 20px;
   bottom: 20px;
-  display: flex;
+  display: ${props => props.show ? 'flex' : 'none'};
   align-items: flex-end;
   gap: 2px;
   z-index: 3;
   pointer-events: auto;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const DealerCharacter = styled(motion.div)`
@@ -367,6 +486,8 @@ function App() {
   const [wowEffects, setWowEffects] = useState([]);
   const [showMLG, setShowMLG] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [showPalette, setShowPalette] = useState(false);
+  const [showDealer, setShowDealer] = useState(true);
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
   const points = useRef([]);
@@ -434,17 +555,31 @@ function App() {
     return smoothed;
   };
 
-  const startDrawing = ({ nativeEvent }) => {
-    const { offsetX, offsetY } = nativeEvent;
-    points.current = [{ x: offsetX, y: offsetY }];
-    lastPoint.current = { x: offsetX, y: offsetY };
+  const getCoordinates = (event) => {
+    if (event.touches) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      return {
+        x: event.touches[0].clientX - rect.left,
+        y: event.touches[0].clientY - rect.top
+      };
+    }
+    return {
+      x: event.nativeEvent.offsetX,
+      y: event.nativeEvent.offsetY
+    };
+  };
+
+  const startDrawing = (event) => {
+    const { x, y } = getCoordinates(event);
+    points.current = [{ x, y }];
+    lastPoint.current = { x, y };
     setIsDrawing(true);
   };
 
-  const draw = ({ nativeEvent }) => {
+  const draw = (event) => {
     if (!isDrawing) return;
-
-    const { offsetX, offsetY } = nativeEvent;
+    
+    const { x, y } = getCoordinates(event);
     const ctx = contextRef.current;
     
     const buttonRect = buttonRef.current?.getBoundingClientRect();
@@ -452,31 +587,31 @@ function App() {
     const scoreRect = scoreRef.current?.getBoundingClientRect();
 
     if (buttonRect && titleRect && scoreRect) {
-      const isNearButton = offsetY > buttonRect.top - 10 && 
-                          offsetY < buttonRect.bottom + 10 && 
-                          offsetX > buttonRect.left - 10 && 
-                          offsetX < buttonRect.right + 10;
+      const isNearButton = y > buttonRect.top - 10 && 
+                          y < buttonRect.bottom + 10 && 
+                          x > buttonRect.left - 10 && 
+                          x < buttonRect.right + 10;
                           
-      const isNearTitle = offsetY > titleRect.top - 10 && 
-                         offsetY < titleRect.bottom + 10 && 
-                         offsetX > titleRect.left - 10 && 
-                         offsetX < titleRect.right + 10;
+      const isNearTitle = y > titleRect.top - 10 && 
+                         y < titleRect.bottom + 10 && 
+                         x > titleRect.left - 10 && 
+                         x < titleRect.right + 10;
                          
-      const isNearScore = offsetY > scoreRect.top - 10 && 
-                         offsetY < scoreRect.bottom + 10 && 
-                         offsetX > scoreRect.left - 10 && 
-                         offsetX < scoreRect.right + 10;
+      const isNearScore = y > scoreRect.top - 10 && 
+                         y < scoreRect.bottom + 10 && 
+                         x > scoreRect.left - 10 && 
+                         x < scoreRect.right + 10;
 
       if (isNearButton || isNearTitle || isNearScore) return;
     }
 
     if (lastPoint.current) {
-      const dx = offsetX - lastPoint.current.x;
-      const dy = offsetY - lastPoint.current.y;
+      const dx = x - lastPoint.current.x;
+      const dy = y - lastPoint.current.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
 
       if (dist >= 2) {
-        points.current.push({ x: offsetX, y: offsetY });
+        points.current.push({ x, y });
         
         if (points.current.length > 3) {
           const smoothedPoints = smoothPoints(points.current.slice(-4));
@@ -495,7 +630,7 @@ function App() {
           ctx.stroke();
         }
 
-        lastPoint.current = { x: offsetX, y: offsetY };
+        lastPoint.current = { x, y };
       }
     }
   };
@@ -677,51 +812,25 @@ function App() {
         onMouseMove={draw}
         onMouseUp={stopDrawing}
         onMouseLeave={stopDrawing}
+        onTouchStart={startDrawing}
+        onTouchMove={draw}
+        onTouchEnd={stopDrawing}
+        onTouchCancel={stopDrawing}
       />
       
-      {/* MLG Effects */}
-      <AnimatePresence>
-        {hitMarkers.map(marker => (
-          <HitMarker
-            key={marker.id}
-            initial={{ opacity: 1, scale: 0.5, x: marker.x, y: marker.y }}
-            animate={{ scale: 1.5 }}
-            exit={{ opacity: 0, scale: 2 }}
-            transition={{ duration: 0.5 }}
-          >
-            {marker.text}
-          </HitMarker>
-        ))}
+      <PaletteToggle 
+        show={showPalette}
+        onClick={() => setShowPalette(!showPalette)}
+      >
+        {showPalette ? '✕ Hide Paint' : '🎨 Show Paint'}
+      </PaletteToggle>
 
-        {wowEffects.map(effect => (
-          <WowText
-            key={effect.id}
-            initial={{ opacity: 0, scale: 0.5, x: effect.x, y: effect.y }}
-            animate={{ opacity: 1, scale: 1.5 }}
-            exit={{ opacity: 0, scale: 2, y: effect.y - 100 }}
-            transition={{ duration: 0.5 }}
-          >
-            {effect.text}
-          </WowText>
-        ))}
-
-        {showMLG && (
-          <>
-            <DoritosImage
-              initial={{ x: -100, y: window.innerHeight }}
-              animate={{ x: window.innerWidth + 100, y: -100 }}
-              exit={{ x: window.innerWidth + 200, y: -200 }}
-              transition={{ duration: 2 }}
-            />
-            <MountainDewImage
-              initial={{ x: window.innerWidth, y: -100 }}
-              animate={{ x: -100, y: window.innerHeight }}
-              exit={{ x: -200, y: window.innerHeight + 100 }}
-              transition={{ duration: 2 }}
-            />
-          </>
-        )}
-      </AnimatePresence>
+      <DealerToggle
+        show={showDealer}
+        onClick={() => setShowDealer(!showDealer)}
+      >
+        {showDealer ? '✕ Hide Dealer' : '👽 Show Dealer'}
+      </DealerToggle>
 
       <Container>
         <Title ref={titleRef}>Press for Dopamine!</Title>
@@ -753,7 +862,7 @@ function App() {
           {soundEnabled ? '🔊' : '🔇'}
         </SoundToggle>
 
-        <ColorPalette>
+        <ColorPalette show={showPalette}>
           {colors.map((row, rowIndex) => (
             <ColorRow key={rowIndex}>
               {row.map((color) => (
@@ -872,7 +981,7 @@ function App() {
         )}
       </AnimatePresence>
 
-      <DealerSection>
+      <DealerSection show={showDealer}>
         <div>
           <DealerTitle>Dealer</DealerTitle>
           <DealerCharacter
